@@ -30,7 +30,7 @@ def get_image(pos, zoom):
 # Координаты (разделяются запятой)
 coords = input()
 # Масштаб карты
-zoom = input()
+zoom = int(input())
 
 # Инициализация
 pygame.init()
@@ -40,14 +40,28 @@ clock = pygame.time.Clock()
 FPS = 60
 
 running = True
-# 4
 # 29.897824,59.865449
+# 4
 
 screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            keys = pygame.key.get_pressed()
+            scale_value = 0
+            if keys[pygame.K_PAGEUP]:
+                scale_value = 1
+            if keys[pygame.K_PAGEDOWN]:
+                scale_value = -1
+            if scale_value:
+                zoom += scale_value
+                if zoom < 0:
+                    zoom = 0
+                elif zoom > 17:
+                    zoom = 17
+                screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
 
     pygame.display.flip()
     clock.tick(FPS)
