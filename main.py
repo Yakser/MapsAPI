@@ -2,6 +2,7 @@ import os
 import sys
 import pygame
 import requests
+from io import BytesIO
 
 
 def terminate():
@@ -38,8 +39,11 @@ clock = pygame.time.Clock()
 FPS = 60
 
 running = True
+# 4
+# 29.897824,59.865449
+
+screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
 while running:
-    screen.fill((0, 0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
