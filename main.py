@@ -27,10 +27,10 @@ def get_image(pos, zoom):
     return response.content
 
 
-# Масштаб карты
-zoom = input()
 # Координаты (разделяются запятой)
 coords = input()
+# Масштаб карты
+zoom = input()
 
 # Инициализация
 pygame.init()
