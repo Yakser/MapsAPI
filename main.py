@@ -10,12 +10,12 @@ def terminate():
     sys.exit()
 
 
-def get_image(pos, zoom, format=0):
+def get_image(pos, zoom):
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     map_params = {
         'll': ','.join(map(str, pos)),
         'z': zoom,
-        'l': ['map', 'sat', 'sat,skl'][format],
+        'l': ['map', 'sat', 'sat,skl'][type_map],
         'size': "650,450"
     }
     response = requests.get(map_api_server, params=map_params)
@@ -46,9 +46,14 @@ running = True
 # 4
 type_map = 0
 screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
-rules = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width - 105, height - 90), (100, 50)),
+view = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width - 115, height - 90), (100, 50)),
                                      text='Вид карты',
                                      manager=manager)
+name_obj = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((width // 2 - 140, height - 50), (250, 200)),
+                                               manager=manager)
+search = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width // 2 + 115, height - 50), (55, 30)),
+                                      text='Искать',
+                                      manager=manager)
 while running:
     timedelta = clock.tick(FPS) / 1000.0
     for event in pygame.event.get():
@@ -96,7 +101,16 @@ while running:
             if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element.text == 'Вид карты':
                     type_map = (type_map + 1) % 3
-                    screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom, type_map))), (0, 0))
+                    screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+                if event.ui_element.text == 'Искать':
+                    geocoder = "http://geocode-maps.yandex.ru/1.x/"
+
+                    geocoder_params = {
+                        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+                        "geocode": name_obj,
+                        "format": "json"}
+                    coords = requests.get(geocoder, params=geocoder_params)
+                    screen.blit(pygame.image.load(BytesIO(get_image(coords['Point'], zoom))), (0, 0))
         manager.process_events(event)
     manager.update(timedelta)
     manager.draw_ui(screen)
