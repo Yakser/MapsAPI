@@ -13,7 +13,7 @@ def terminate():
 def get_image(pos, zoom):
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     map_params = {
-        'll': pos,
+        'll': ','.join(map(str, pos)),
         'z': zoom,
         'l': 'map',
         'size': "650,450"
@@ -28,7 +28,7 @@ def get_image(pos, zoom):
 
 
 # Координаты (разделяются запятой)
-coords = input()
+coords = list(map(float, input().split(',')))
 # Масштаб карты
 zoom = int(input())
 
@@ -50,6 +50,7 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
+            # scaling
             scale_value = 0
             if keys[pygame.K_PAGEUP]:
                 scale_value = 1
@@ -61,6 +62,28 @@ while running:
                     zoom = 0
                 elif zoom > 17:
                     zoom = 17
+                screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+            if zoom <= 5:
+                d = 1
+            elif zoom <= 12:
+                d = .1
+            elif zoom <= 15:
+                d = .01
+            else:
+                d = .001
+            # move
+            dlat = dlon = 0
+            if keys[pygame.K_LEFT]:
+                dlon = -d
+            if keys[pygame.K_RIGHT]:
+                dlon = d
+            if keys[pygame.K_DOWN]:
+                dlat = -d
+            if keys[pygame.K_UP]:
+                dlat = d
+            coords[0] += dlon
+            coords[1] += dlat
+            if dlon or dlat:
                 screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
 
     pygame.display.flip()
