@@ -15,7 +15,8 @@ def get_image(pos, zoom):
     map_params = {
         'll': pos,
         'z': zoom,
-        'l': 'map'
+        'l': 'map',
+        'size': "650,450"
     }
     response = requests.get(map_api_server, params=map_params)
     if not response:
@@ -33,7 +34,7 @@ coords = input()
 
 # Инициализация
 pygame.init()
-screen = pygame.display.set_mode((600, 600))
+screen = pygame.display.set_mode((650, 450))
 pygame.display.set_caption("MapsAPI")
 clock = pygame.time.Clock()
 FPS = 60
