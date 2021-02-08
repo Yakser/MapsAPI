@@ -18,6 +18,8 @@ def get_image(pos, zoom):
         'l': ['map', 'sat', 'sat,skl'][type_map],
         'size': "650,450"
     }
+    if pt:
+        map_params['pt'] = map_params['ll'] + ',flag'
     response = requests.get(map_api_server, params=map_params)
     if not response:
         print("Ошибка выполнения запроса:")
@@ -40,7 +42,7 @@ pygame.display.set_caption("MapsAPI")
 clock = pygame.time.Clock()
 FPS = 60
 manager = pygame_gui.UIManager((width, height))
-
+pt = None
 running = True
 # 29.897824,59.865449
 # 4
@@ -54,6 +56,7 @@ name_obj = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((width 
 search = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width // 2 + 115, height - 50), (55, 30)),
                                       text='Искать',
                                       manager=manager)
+
 while running:
     timedelta = clock.tick(FPS) / 1000.0
     for event in pygame.event.get():
@@ -104,13 +107,19 @@ while running:
                     screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
                 if event.ui_element.text == 'Искать':
                     geocoder = "http://geocode-maps.yandex.ru/1.x/"
-
+                    name = name_obj.get_text()
                     geocoder_params = {
                         "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
-                        "geocode": name_obj,
+                        "geocode": name,
                         "format": "json"}
-                    coords = requests.get(geocoder, params=geocoder_params)
-                    screen.blit(pygame.image.load(BytesIO(get_image(coords['Point'], zoom))), (0, 0))
+
+                    response = requests.get(geocoder, params=geocoder_params)
+                    json_response = response.json()
+                    toponym = json_response["response"]["GeoObjectCollection"][
+                        "featureMember"][0]["GeoObject"]
+                    toponym_coords = toponym["Point"]["pos"]
+                    pt = toponym_coords
+                    screen.blit(pygame.image.load(BytesIO(get_image(toponym_coords.split(), zoom))), (0, 0))
         manager.process_events(event)
     manager.update(timedelta)
     manager.draw_ui(screen)
