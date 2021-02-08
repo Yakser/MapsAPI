@@ -16,6 +16,7 @@ def get_image(pos, zoom, format=0):
         'll': pos,
         'z': zoom,
         'l': ['map', 'sat', 'sat,skl'][format]
+        'size': "650,450"
     }
     response = requests.get(map_api_server, params=map_params)
     if not response:
@@ -26,10 +27,11 @@ def get_image(pos, zoom, format=0):
     return response.content
 
 
-# Масштаб карты
-zoom = input()
 # Координаты (разделяются запятой)
 coords = input()
+# Масштаб карты
+zoom = int(input())
+
 width, height = 600, 450
 # Инициализация
 pygame.init()
@@ -52,6 +54,21 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            keys = pygame.key.get_pressed()
+            scale_value = 0
+            if keys[pygame.K_PAGEUP]:
+                scale_value = 1
+            if keys[pygame.K_PAGEDOWN]:
+                scale_value = -1
+            if scale_value:
+                zoom += scale_value
+                if zoom < 0:
+                    zoom = 0
+                elif zoom > 17:
+                    zoom = 17
+                screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+
         if event.type == pygame.USEREVENT:
             if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element.text == 'Вид карты':
