@@ -32,7 +32,7 @@ coords = input()
 # Масштаб карты
 zoom = int(input())
 
-width, height = 600, 450
+width, height = 650, 450
 # Инициализация
 pygame.init()
 screen = pygame.display.set_mode((width, height))
