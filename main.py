@@ -22,12 +22,13 @@ def get_image(pos, zoom):
         print(response.content)
         print("Http статус:", response.status_code, "(", response.reason, ")")
         sys.exit(1)
+    return response.content
 
-    # Запишем полученное изображение в файл.
-    map_file = "map.png"
-    with open(map_file, "wb") as file:
-        file.write(response.content)
 
+# Масштаб карты
+zoom = input()
+# Координаты (разделяются запятой)
+coords = input()
 
 # Инициализация
 pygame.init()
@@ -35,11 +36,6 @@ screen = pygame.display.set_mode((600, 600))
 pygame.display.set_caption("MapsAPI")
 clock = pygame.time.Clock()
 FPS = 60
-
-# Масштаб карты
-zoom = input()
-# Координаты (разделяются запятой)
-coords = input()
 
 running = True
 while running:
