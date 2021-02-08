@@ -15,7 +15,7 @@ def get_image(pos, zoom, format=0):
     map_params = {
         'll': pos,
         'z': zoom,
-        'l': ['map', 'sat', 'sat,skl'][format]
+        'l': ['map', 'sat', 'sat,skl'][format],
         'size': "650,450"
     }
     response = requests.get(map_api_server, params=map_params)
@@ -42,8 +42,8 @@ FPS = 60
 manager = pygame_gui.UIManager((width, height))
 
 running = True
-# 4
 # 29.897824,59.865449
+# 4
 type_map = 0
 screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
 rules = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width - 105, height - 90), (100, 50)),
