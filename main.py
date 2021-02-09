@@ -23,16 +23,20 @@ def get_image(pos, zoom):
     response = requests.get(map_api_server, params=map_params)
     if not response:
         print("Ошибка выполнения запроса:")
-        print(response.content)
         print("Http статус:", response.status_code, "(", response.reason, ")")
         sys.exit(1)
     return response.content
 
 
-# Координаты (разделяются запятой)
-coords = list(map(float, input().split(',')))
-# Масштаб карты
-zoom = int(input())
+try:
+    # Координаты (разделяются запятой)
+    coords = list(map(float, input().split(',')))
+    # Масштаб карты
+    zoom = int(input())
+except Exception:
+    print("Ошибка! Некорректные координаты")
+    terminate()
+
 width, height = 650, 450
 # Инициализация
 pygame.init()
@@ -119,7 +123,7 @@ while running:
                     response = requests.get(geocoder, params=geocoder_params)
                     json_response = response.json()
                     if json_response['response']['GeoObjectCollection']['metaDataProperty'][
-                        'GeocoderResponseMetaData']['found'] != '0':
+                            'GeocoderResponseMetaData']['found'] != '0':
                         toponym = json_response["response"]["GeoObjectCollection"][
                             "featureMember"][0]["GeoObject"]
                         coords = list(map(float, toponym["Point"]["pos"].split()))
