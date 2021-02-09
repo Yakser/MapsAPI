@@ -19,7 +19,7 @@ def get_image(pos, zoom):
         'size': "650,450"
     }
     if pt:
-        map_params['pt'] = map_params['ll'] + ',flag'
+        map_params['pt'] = pt + ',flag'
     response = requests.get(map_api_server, params=map_params)
     if not response:
         print("Ошибка выполнения запроса:")
@@ -33,7 +33,6 @@ def get_image(pos, zoom):
 coords = list(map(float, input().split(',')))
 # Масштаб карты
 zoom = int(input())
-
 width, height = 650, 450
 # Инициализация
 pygame.init()
@@ -117,9 +116,9 @@ while running:
                     json_response = response.json()
                     toponym = json_response["response"]["GeoObjectCollection"][
                         "featureMember"][0]["GeoObject"]
-                    toponym_coords = toponym["Point"]["pos"]
-                    pt = toponym_coords
-                    screen.blit(pygame.image.load(BytesIO(get_image(toponym_coords.split(), zoom))), (0, 0))
+                    coords = list(map(float, toponym["Point"]["pos"].split()))
+                    pt = ','.join(map(str, coords))
+                    screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
         manager.process_events(event)
     manager.update(timedelta)
     manager.draw_ui(screen)
