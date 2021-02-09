@@ -47,7 +47,7 @@ running = True
 # 4
 type_map = 0
 screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
-view = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width - 115, height - 90), (100, 50)),
+view = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width - 115, 10), (100, 30)),
                                     text='Вид карты',
                                     manager=manager)
 name_obj = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((width // 2 - 140, height - 50), (250, 200)),
@@ -55,6 +55,9 @@ name_obj = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((width 
 search = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width // 2 + 115, height - 50), (55, 30)),
                                       text='Искать',
                                       manager=manager)
+reset_search = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width // 2 - 160 - 55, height - 50), (70, 30)),
+                                            text='Сбросить',
+                                            manager=manager)
 
 while running:
     timedelta = clock.tick(FPS) / 1000.0
@@ -116,12 +119,18 @@ while running:
                     response = requests.get(geocoder, params=geocoder_params)
                     json_response = response.json()
                     if json_response['response']['GeoObjectCollection']['metaDataProperty'][
-                            'GeocoderResponseMetaData']['found'] != '0':
+                        'GeocoderResponseMetaData']['found'] != '0':
                         toponym = json_response["response"]["GeoObjectCollection"][
                             "featureMember"][0]["GeoObject"]
                         coords = list(map(float, toponym["Point"]["pos"].split()))
                         pt = ','.join(map(str, coords))
                         screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+
+                if event.ui_element.text == 'Сбросить':
+                    pt = ''
+                    screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+                    name_obj.set_text("")
+                    pass
 
         manager.process_events(event)
     manager.update(timedelta)
