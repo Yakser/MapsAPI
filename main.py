@@ -22,19 +22,22 @@ def get_image(pos, zoom):
         map_params['pt'] = pt + ',flag'
     response = requests.get(map_api_server, params=map_params)
     if not response:
-        print("Ошибка выполнения запроса:")
-        print("Http статус:", response.status_code, "(", response.reason, ")")
-        sys.exit(1)
+        return
     return response.content
 
 
+# 29.897824,59.865449
+# 71.653772,-84.912755
+# 4
 try:
     # Координаты (разделяются запятой)
+    print("Введите координаты через запятую:")
     coords = list(map(float, input().split(',')))
     # Масштаб карты
+    print("Введите масштаб карты:")
     zoom = int(input())
 except Exception:
-    print("Ошибка! Некорректные координаты")
+    print("Некорректные координаты!")
     terminate()
 
 width, height = 650, 450
@@ -47,10 +50,13 @@ FPS = 60
 manager = pygame_gui.UIManager((width, height))
 pt = None
 running = True
-# 29.897824,59.865449
-# 4
+
 type_map = 0
-screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+map_img = get_image(coords, zoom)
+if not map_img:
+    print("Некорректные координаты!")
+    terminate()
+screen.blit(pygame.image.load(BytesIO(map_img)), (0, 0))
 view = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width - 115, 10), (100, 30)),
                                     text='Вид карты',
                                     manager=manager)
@@ -104,7 +110,12 @@ while running:
             coords[0] += dlon
             coords[1] += dlat
             if dlon or dlat:
-                screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+                map_img = get_image(coords, zoom)
+                if not map_img:
+                    coords[0] -= dlon
+                    coords[1] -= dlat
+                    map_img = get_image(coords, zoom)
+                screen.blit(pygame.image.load(BytesIO(map_img)), (0, 0))
 
         if event.type == pygame.USEREVENT:
             if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
@@ -123,7 +134,7 @@ while running:
                     response = requests.get(geocoder, params=geocoder_params)
                     json_response = response.json()
                     if json_response['response']['GeoObjectCollection']['metaDataProperty'][
-                            'GeocoderResponseMetaData']['found'] != '0':
+                        'GeocoderResponseMetaData']['found'] != '0':
                         toponym = json_response["response"]["GeoObjectCollection"][
                             "featureMember"][0]["GeoObject"]
                         coords = list(map(float, toponym["Point"]["pos"].split()))
