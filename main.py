@@ -25,6 +25,8 @@ def get_image(pos, zoom):
         return
     return response.content
 
+def get_info():
+    pass
 
 # 29.897824,59.865449
 # 71.653772,-84.912755
@@ -146,7 +148,13 @@ while running:
                     screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
                     name_obj.set_text("")
                     pass
-
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+            print((event.pos[1] - 450 // 2) / (4.5 * zoom / 1.1) + coords[1])
+            x_temp, y_temp = (event.pos[0] - 650 // 2) / (6.5 * zoom / 2.27) + coords[0],\
+                             (450 // 2 - event.pos[1]) / (4.5 * zoom / 1.11) + coords[1]
+            pt = ','.join(map(str, [x_temp, y_temp]))
+            print(pt, coords)
+            screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
         manager.process_events(event)
     manager.update(timedelta)
     manager.draw_ui(screen)
