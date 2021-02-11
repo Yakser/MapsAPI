@@ -68,6 +68,9 @@ search = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width // 2 + 11
 reset_search = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((width // 2 - 160 - 55, height - 50), (70, 30)),
                                             text='Сбросить',
                                             manager=manager)
+address_text = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((5, 10), (width - 125, 30)),
+                                                   manager=manager)
+address_text.disable()
 
 while running:
     timedelta = clock.tick(FPS) / 1000.0
@@ -137,12 +140,16 @@ while running:
                         'GeocoderResponseMetaData']['found'] != '0':
                         toponym = json_response["response"]["GeoObjectCollection"][
                             "featureMember"][0]["GeoObject"]
+
+                        address_text.set_text(toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted'])
+
                         coords = list(map(float, toponym["Point"]["pos"].split()))
                         pt = ','.join(map(str, coords))
                         screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
 
                 if event.ui_element.text == 'Сбросить':
                     pt = ''
+                    address_text.set_text('')
                     screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
                     name_obj.set_text("")
                     pass
