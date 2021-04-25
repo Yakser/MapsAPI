@@ -36,10 +36,10 @@ def get_image(pos, zoom):
 # 4
 try:
     # Координаты (разделяются запятой)
-    print("Введите координаты через запятую:")
+    print("Введите координаты через запятую (lon<179, lat<85):")
     coords = list(map(float, input().split(',')))
     # Масштаб карты
-    print("Введите масштаб карты (область показа в градусах, через запятую)")
+    print("Введите масштаб карты (область показа в градусах, через запятую, lon<180, lat<90)")
     zoom = list(map(float, input().split(',')))
 except Exception:
     print("Некорректные координаты!")
@@ -98,8 +98,8 @@ while running:
             #         zoom = 0
             #     elif zoom > 17:
             #         zoom = 17
-
-            screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+            if keys[pygame.K_PAGEUP] or keys[pygame.K_PAGEDOWN]:
+                screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
 
             dx, dy = 2 * zoom[0], 2 * zoom[1]
             # move
