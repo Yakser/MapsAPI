@@ -10,17 +10,22 @@ def terminate():
     sys.exit()
 
 
+def get_bounds(coords):
+    pass
+
+
 def get_image(pos, zoom):
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     map_params = {
         'll': ','.join(map(str, pos)),
-        'z': zoom,
+        'spn': ','.join(map(str, zoom)),
         'l': ['map', 'sat', 'sat,skl'][type_map],
-        'size': "650,450"
+        'size': "450,450",
     }
     if pt:
         map_params['pt'] = pt + ',flag'
     response = requests.get(map_api_server, params=map_params)
+
     if not response:
         return
     return response.content
@@ -34,13 +39,13 @@ try:
     print("Введите координаты через запятую:")
     coords = list(map(float, input().split(',')))
     # Масштаб карты
-    print("Введите масштаб карты:")
-    zoom = int(input())
+    print("Введите масштаб карты (область показа в градусах, через запятую)")
+    zoom = list(map(float, input().split(',')))
 except Exception:
     print("Некорректные координаты!")
     terminate()
 
-width, height = 650, 450
+width, height = 450, 450
 # Инициализация
 pygame.init()
 screen = pygame.display.set_mode((width, height))
@@ -80,36 +85,33 @@ while running:
         if event.type == pygame.KEYDOWN:
             keys = pygame.key.get_pressed()
             # scaling
-            scale_value = 0
+
             if keys[pygame.K_PAGEUP]:
-                scale_value = 1
+                zoom[0] /= 2
+                zoom[1] /= 2
             if keys[pygame.K_PAGEDOWN]:
-                scale_value = -1
-            if scale_value:
-                zoom += scale_value
-                if zoom < 0:
-                    zoom = 0
-                elif zoom > 17:
-                    zoom = 17
-                screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
-            if zoom <= 5:
-                d = 1
-            elif zoom <= 12:
-                d = .1
-            elif zoom <= 15:
-                d = .01
-            else:
-                d = .001
+                zoom[0] *= 2
+                zoom[1] *= 2
+            # if scale_value:
+            #     zoom += scale_value
+            #     if zoom < 0:
+            #         zoom = 0
+            #     elif zoom > 17:
+            #         zoom = 17
+
+            screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
+
+            dx, dy = 2 * zoom[0], 2 * zoom[1]
             # move
             dlat = dlon = 0
             if keys[pygame.K_LEFT]:
-                dlon = -d
+                dlon = -dx
             if keys[pygame.K_RIGHT]:
-                dlon = d
+                dlon = dx
             if keys[pygame.K_DOWN]:
-                dlat = -d
+                dlat = -dy
             if keys[pygame.K_UP]:
-                dlat = d
+                dlat = dy
             coords[0] += dlon
             coords[1] += dlat
             if dlon or dlat:
@@ -125,14 +127,14 @@ while running:
                 if event.ui_element.text == 'Вид карты':
                     type_map = (type_map + 1) % 3
                     screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
-
                 if event.ui_element.text == 'Искать':
                     geocoder = "http://geocode-maps.yandex.ru/1.x/"
                     name = name_obj.get_text()
                     geocoder_params = {
                         "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
                         "geocode": name,
-                        "format": "json"}
+                        "format": "json"
+                    }
 
                     response = requests.get(geocoder, params=geocoder_params)
                     json_response = response.json()
@@ -152,7 +154,6 @@ while running:
                     address_text.set_text('')
                     screen.blit(pygame.image.load(BytesIO(get_image(coords, zoom))), (0, 0))
                     name_obj.set_text("")
-                    pass
 
         manager.process_events(event)
     manager.update(timedelta)
